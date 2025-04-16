@@ -1,504 +1,701 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شبكة اجتماعية احترافية</title>
-    <style>
-        /* الأساسيات */
-        :root {
-            --primary-color: #1877f2;
-            --secondary-color: #42b72a;
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: var(--bg-color);
-            min-height: 100vh;
-        }
-
-        /* التحميل */
-        .loading {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        /* الهيدر */
-        .header {
-            background: var(--primary-color);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header h1 {
-            color: white;
-            font-size: 1.5rem;
-        }
-
-        /* الواجهة الرئيسية */
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 2fr 1fr;
-            gap: 1.5rem;
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* القوائم الجانبية */
-        .sidebar {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            height: fit-content;
-        }
-
-        /* نموذج النشر */
-        .post-form {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-        }
-
-        .post-form textarea {
-            width: 100%;
-            height: 100px;
-            padding: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            resize: vertical;
-            margin-bottom: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .post-form textarea:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-
-        /* المنشورات */
-        .post {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-            transition: transform 0.3s;
-        }
-
-        .post:hover {
-            transform: translateY(-2px);
-        }
-
-        /* الدردشة */
-        .chat-container {
-            background: var(--card-bg);
-            border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .chat-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chat-messages {
-            height: 400px;
-            overflow-y: auto;
-            padding: 1rem;
-        }
-
-        .message {
-            margin-bottom: 1rem;
-            padding: 0.8rem;
-            border-radius: 8px;
-            max-width: 80%;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        .message.sent {
-            background: var(--primary-color);
-            color: white;
-            margin-left: auto;
-        }
-
-        .message.received {
-            background: #e4e6eb;
-            margin-right: auto;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* النماذج */
-        .auth-form {
-            background: var(--card-bg);
-            max-width: 400px;
-            margin: 5rem auto;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .auth-form input {
-            width: 100%;
-            padding: 0.8rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            transition: border-color 0.3s;
-        }
-
-        .auth-form input:focus {
-            border-color: var(--primary-color);
-        }
-
-        .btn {
-            padding: 0.6rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #166fe5;
-        }
-
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--secondary-color);
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            display: none;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>شبكتي - نظام تواصل اجتماعي متكامل</title>
+  <style>
+    /* قواعد عامة */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; direction: rtl; }
+    a { text-decoration: none; }
+    button { cursor: pointer; }
+    
+    /* تنسيق نموذج المصادقة */
+    #auth {
+      max-width: 400px;
+      margin: 50px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    #auth h2 { text-align: center; margin-bottom: 20px; }
+    #auth form { display: none; }
+    #auth form.active { display: block; }
+    #auth input[type="text"],
+    #auth input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    #auth button {
+      width: 100%;
+      padding: 10px;
+      background: #4267B2;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      margin-top: 10px;
+    }
+    #auth button:hover { background: #365899; }
+    #auth .toggle {
+      text-align: center;
+      margin-top: 10px;
+      color: #4267B2;
+      cursor: pointer;
+    }
+    
+    /* تنسيق الرأس وقائمة التنقل */
+    .header {
+      background: #4267B2;
+      color: #fff;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .header .logo { font-size: 20px; font-weight: bold; }
+    .header input[type="search"] {
+      padding: 5px 10px;
+      border-radius: 16px;
+      border: none;
+      width: 200px;
+    }
+    .header .user-info { font-size: 16px; margin-top:5px; }
+    
+    .nav {
+      background: #fff;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .nav a {
+      color: #4267B2;
+      font-weight: bold;
+      padding: 5px 10px;
+    }
+    .nav a:hover {
+      background: #e9ebee;
+      border-radius: 4px;
+    }
+    
+    /* تنسيق المحتوى الرئيسي للصفحات المختلفة */
+    #main { display: none; }
+    .container { display: flex; padding: 10px; flex-wrap: wrap; }
+    
+    /* أقسام التخطيط الرئيسية */
+    .side-bar, .feed, .chat, .profile, .notifications, .usersList, .otherProfile {
+      background: #fff;
+      margin: 5px;
+      border-radius: 4px;
+      padding: 10px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .side-bar {
+      flex: 1;
+      min-width: 250px;
+      max-width: 300px;
+      height: calc(100vh - 140px);
+      overflow-y: auto;
+    }
+    .feed {
+      flex: 2;
+      min-width: 300px;
+      max-width: 600px;
+    }
+    
+    /* مشاركات المنشورات */
+    .post {
+      background: #fff;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      position: relative;
+    }
+    .post h3 { margin-bottom: 5px; }
+    .post p { margin-bottom: 5px; line-height: 1.4; }
+    .post small { display: block; color: #777; margin-bottom: 5px; }
+    .post .actions {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: #65676b;
+      border-top: 1px solid #ddd;
+      margin-top: 5px;
+      padding-top: 5px;
+    }
+    .post .actions span:hover { cursor: pointer; text-decoration: underline; }
+    .post .delete {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      font-size: 12px;
+      color: red;
+    }
+    
+    /* نموذج إنشاء منشور */
+    .new-post {
+      background: #fff;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    .new-post textarea {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: vertical;
+      padding: 5px;
+      height: 60px;
+    }
+    .new-post button {
+      background: #4267B2;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-top: 5px;
+    }
+    .new-post button:hover { background: #365899; }
+    
+    /* الدردشة */
+    .chat {
+      flex: 1;
+      min-width: 250px;
+      max-width: 300px;
+      height: calc(100vh - 140px);
+      overflow-y: auto;
+      position: relative;
+    }
+    .chat h3 { margin-bottom: 10px; }
+    .contact {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+    .contact img {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin-left: 8px;
+    }
+    .contact span { font-size: 16px; color: #050505; }
+    
+    /* نافذة الدردشة */
+    #chatWindow {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid #ccc;
+      max-height: 300px;
+      display: none;
+      flex-direction: column;
+    }
+    #chatWindow header {
+      background: #4267B2;
+      color: #fff;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #chatWindow .messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    #chatWindow .messages p { margin-bottom: 8px; line-height: 1.4; }
+    #chatWindow footer {
+      padding: 10px;
+      display: flex;
+    }
+    #chatWindow footer input[type="text"] {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    #chatWindow footer button {
+      background: #4267B2;
+      color: #fff;
+      border: none;
+      margin-left: 5px;
+      border-radius: 4px;
+      padding: 8px 12px;
+    }
+    
+    /* صفحات الملف الشخصي والإشعارات وقائمة المستخدمين */
+    .profile, .notifications, .usersList, .otherProfile {
+      padding: 20px;
+      width: 100%;
+    }
+    .profile h2, .notifications h2, .usersList h2, .otherProfile h2 { margin-bottom: 15px; }
+    .profile input[type="text"], .profile textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .profile button, .otherProfile button {
+      padding: 10px 15px;
+      background: #4267B2;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    
+    /* التذييل */
+    .footer {
+      background: #fff;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      margin-top: 10px;
+      box-shadow: 0 -1px 2px rgba(0,0,0,0.1);
+    }
+    
+    /* إظهار وإخفاء الصفحات */
+    .page { display: none; }
+    .page.active { display: block; }
+  </style>
 </head>
 <body>
-    <div class="loading"></div>
+  <!-- قسم المصادقة -->
+  <div id="auth">
+    <h2 id="authTitle">تسجيل الدخول</h2>
+    <!-- نموذج تسجيل الدخول -->
+    <form id="loginForm" class="active">
+      <input type="text" id="loginUsername" placeholder="اسم المستخدم" required>
+      <input type="password" id="loginPassword" placeholder="كلمة المرور" required>
+      <button type="button" onclick="loginUser()">دخول</button>
+    </form>
+    <!-- نموذج إنشاء الحساب -->
+    <form id="registerForm">
+      <input type="text" id="registerUsername" placeholder="اسم المستخدم" required>
+      <input type="password" id="registerPassword" placeholder="كلمة المرور" required>
+      <input type="password" id="registerConfirmPassword" placeholder="تأكيد كلمة المرور" required>
+      <button type="button" onclick="registerUser()">إنشاء حساب</button>
+    </form>
+    <div class="toggle" onclick="toggleAuth()">
+      هل تريد التحويل إلى <span id="toggleText">إنشاء حساب</span>؟
+    </div>
+  </div>
+  
+  <!-- المحتوى الرئيسي بعد المصادقة -->
+  <div id="main">
+    <!-- الرأس -->
+    <div class="header">
+      <div class="logo">شبكتي</div>
+      <input type="search" placeholder="ابحث عن أشخاص ومنشورات...">
+      <div class="user-info" id="userInfo"></div>
+      <button onclick="logout()" style="background:#fff; color:#4267B2; border:none; padding:5px 10px; border-radius:4px;">خروج</button>
+    </div>
     
-    <!-- واجهة المصادقة -->
-    <div id="authSection" class="auth-form">
-        <h2>مرحبًا بك في الشبكة الاجتماعية</h2>
-        <div style="margin: 2rem 0">
-            <input type="text" id="regUsername" placeholder="اسم المستخدم">
-            <input type="password" id="regPassword" placeholder="كلمة المرور">
-            <button class="btn btn-primary" onclick="register()">إنشاء حساب</button>
-        </div>
-        <hr>
-        <div style="margin-top: 2rem">
-            <input type="text" id="loginUsername" placeholder="اسم المستخدم">
-            <input type="password" id="loginPassword" placeholder="كلمة المرور">
-            <button class="btn btn-primary" onclick="login()">تسجيل الدخول</button>
-        </div>
+    <!-- قائمة التنقل الرئيسية داخل الموقع -->
+    <div class="nav">
+      <a href="#" onclick="showPage('feed')">الرئيسية</a>
+      <a href="#" onclick="showPage('profile')">ملفي الشخصي</a>
+      <a href="#" onclick="showPage('notifications')">الإشعارات</a>
+      <a href="#" onclick="showPage('chatSection')">الدردشة</a>
+      <a href="#" onclick="showPage('users')">المستخدمين</a>
     </div>
-
-    <!-- الواجهة الرئيسية -->
-    <div id="mainApp" style="display: none;">
-        <header class="header">
-            <h1>شبكتي الاجتماعية</h1>
-            <button class="btn btn-primary" onclick="logout()">تسجيل الخروج</button>
-        </header>
-
+    
+    <!-- المحتوى المتغير للصفحات -->
+    <div id="content">
+      <!-- صفحة التغذية (الرئيسية) -->
+      <div id="feed" class="page active">
         <div class="container">
-            <!-- الجانب الأيسر -->
-            <div class="sidebar">
-                <h3>ملفي الشخصي</h3>
-                <div id="userProfile" style="margin: 1rem 0"></div>
-                <h3>الأصدقاء</h3>
-                <div id="friendsList"></div>
+          <!-- الشريط الجانبي -->
+          <div class="side-bar">
+            <h3>القوائم</h3>
+            <ul style="list-style: none; margin-top: 10px;">
+              <li><a href="#" onclick="showPage('feed')">الرئيسية</a></li>
+              <li><a href="#" onclick="showPage('profile')">الملف الشخصي</a></li>
+              <li><a href="#" onclick="showPage('notifications')">الإشعارات</a></li>
+              <li><a href="#" onclick="showPage('chatSection')">الدردشة</a></li>
+              <li><a href="#" onclick="showPage('users')">المستخدمين</a></li>
+            </ul>
+          </div>
+          <!-- التغذية الرئيسية للمنشورات -->
+          <div class="feed">
+            <!-- نموذج منشور جديد -->
+            <div class="new-post">
+              <textarea id="postContent" placeholder="ما الذي يدور في ذهنك؟"></textarea>
+              <button onclick="createPost()">نشر</button>
             </div>
-
-            <!-- المحتوى الرئيسي -->
-            <main>
-                <div class="post-form">
-                    <textarea id="postContent" placeholder="ماذا يحدث؟"></textarea>
-                    <button class="btn btn-primary" onclick="createPost()">نشر</button>
-                </div>
-                <div id="postsContainer"></div>
-            </main>
-
-            <!-- الدردشة -->
-            <div class="sidebar chat-container">
-                <div class="chat-header">
-                    <h3>الدردشة</h3>
-                    <div id="unreadCount" style="background: var(--secondary-color); padding: 0.2rem 0.5rem; border-radius: 50%;"></div>
-                </div>
-                <div class="chat-messages" id="chatMessages"></div>
-                <div style="padding: 1rem">
-                    <input type="text" id="messageInput" placeholder="اكتب رسالة..." style="width: 100%; margin-bottom: 0.5rem;">
-                    <button class="btn btn-primary" onclick="sendMessage()">إرسال</button>
-                </div>
-            </div>
+            <!-- قائمة المنشورات -->
+            <div id="posts"></div>
+          </div>
         </div>
+      </div>
+      
+      <!-- صفحة الملف الشخصي الخاص بالمستخدم الحالي -->
+      <div id="profile" class="page">
+        <div class="profile">
+          <h2>ملفي الشخصي</h2>
+          <p><strong>اسم المستخدم:</strong> <span id="profileUsername"></span></p>
+          <p><strong>الوضعية:</strong></p>
+          <textarea id="statusInput" placeholder="اكتب وضعيتك هنا..."></textarea>
+          <button onclick="updateProfile()">تحديث الوضعية</button>
+          <p id="profileStatus" style="margin-top:10px;"></p>
+        </div>
+      </div>
+      
+      <!-- صفحة الإشعارات -->
+      <div id="notifications" class="page">
+        <div class="notifications">
+          <h2>الإشعارات</h2>
+          <ul id="notificationList" style="list-style: none; padding: 10px;">
+            <li>مرحباً بك في شبكتي!</li>
+            <li>تم إعجاب أحد منشوراتك.</li>
+            <li>تمت إضافة صديق جديد.</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- قسم الدردشة -->
+      <div id="chatSection" class="page">
+        <div class="container">
+          <!-- قائمة جهة الاتصال للدردشة -->
+          <div class="chat" style="height: auto;">
+            <h3>جهات الاتصال</h3>
+            <!-- عرض قائمة المستخدمين من المسجلين (باستثناء المستخدم الحالي) -->
+            <div id="contactsList"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- صفحة قائمة المستخدمين (عرض جميع الحسابات المتوفرة باستثناء الحساب الحالي) -->
+      <div id="users" class="page">
+        <div class="usersList">
+          <h2>المستخدمون</h2>
+          <div id="usersListContainer"></div>
+        </div>
+      </div>
+      
+      <!-- صفحة الملف الشخصي للمستخدم الآخر -->
+      <div id="otherProfile" class="page">
+        <div class="otherProfile">
+          <h2>الملف الشخصي للمستخدم</h2>
+          <p><strong>اسم المستخدم:</strong> <span id="otherUsername"></span></p>
+          <p><strong>الوضعية:</strong> <span id="otherStatus"></span></p>
+          <button onclick="startChatFromOtherProfile()">ابدأ دردشة</button>
+          <button onclick="backToUsers()">العودة لقائمة المستخدمين</button>
+        </div>
+      </div>
     </div>
-
-    <div class="notification" id="notification"></div>
-
-    <script>
-        class SocialNetwork {
-            constructor() {
-                this.users = JSON.parse(localStorage.getItem('users')) || [];
-                this.posts = JSON.parse(localStorage.getItem('posts')) || [];
-                this.messages = JSON.parse(localStorage.getItem('messages')) || [];
-                this.currentUser = null;
-                this.selectedUser = null;
-            }
-
-            register(username, password) {
-                if (this.users.some(u => u.username === username)) {
-                    this.showNotification('اسم المستخدم موجود مسبقًا!');
-                    return false;
-                }
-                this.users.push({ username, password, friends: [] });
-                localStorage.setItem('users', JSON.stringify(this.users));
-                return true;
-            }
-
-            login(username, password) {
-                const user = this.users.find(u => u.username === username && u.password === password);
-                if (user) {
-                    this.currentUser = username;
-                    return true;
-                }
-                return false;
-            }
-
-            createPost(content) {
-                this.posts.unshift({
-                    author: this.currentUser,
-                    content,
-                    date: new Date().toLocaleString(),
-                    likes: []
-                });
-                localStorage.setItem('posts', JSON.stringify(this.posts));
-            }
-
-            sendMessage(message, receiver) {
-                this.messages.push({
-                    from: this.currentUser,
-                    to: receiver,
-                    message,
-                    timestamp: new Date().toISOString(),
-                    read: false
-                });
-                localStorage.setItem('messages', JSON.stringify(this.messages));
-                this.showNotification('تم إرسال الرسالة بنجاح');
-            }
-
-            getConversation(user) {
-                return this.messages.filter(m => 
-                    (m.from === this.currentUser && m.to === user) ||
-                    (m.from === user && m.to === this.currentUser)
-                ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            }
-
-            showNotification(text) {
-                const notification = document.getElementById('notification');
-                notification.textContent = text;
-                notification.style.display = 'block';
-                setTimeout(() => notification.style.display = 'none', 3000);
-            }
-
-            updateUnreadCount() {
-                const unread = this.messages.filter(m => 
-                    m.to === this.currentUser && !m.read
-                ).length;
-                document.getElementById('unreadCount').textContent = unread || '';
-            }
+    
+    <!-- نافذة الدردشة المنبثقة -->
+    <div id="chatWindow">
+      <header>
+        <span id="chatWith">المحادثة مع:</span>
+        <button onclick="closeChat()" style="background:none; border:none; color:#fff;">X</button>
+      </header>
+      <div class="messages" id="chatMessages"></div>
+      <footer>
+        <input type="text" id="chatInput" placeholder="اكتب رسالتك...">
+        <button onclick="sendMessage()">إرسال</button>
+      </footer>
+    </div>
+    
+    <!-- التذييل -->
+    <div class="footer">
+      &copy; 2025 شبكتي - جميع الحقوق محفوظة.
+    </div>
+  </div>
+  
+  <script>
+    /***** بيانات المستخدم والدردشة *****/
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let currentUser = null;
+    // لتخزين سجلات الدردشة، سيتم استخدام مفتاح ثابت يعتمد على ترتيب أسماء المستخدمين (مثال: "Alice_Bob")
+    let chatHistories = JSON.parse(localStorage.getItem('chatHistories')) || {};
+    
+    // دالة توليد مفتاح الدردشة بين طرفين (عن طريق فرز الأسماء)
+    function getChatKey(userA, userB) {
+      return [userA, userB].sort().join('_');
+    }
+    
+    /***** وظائف تغيير بين واجهات المصادقة ********/
+    function toggleAuth() {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const toggleText = document.getElementById('toggleText');
+      const authTitle = document.getElementById('authTitle');
+      if (loginForm.classList.contains('active')) {
+        loginForm.classList.remove('active');
+        registerForm.classList.add('active');
+        toggleText.textContent = 'تسجيل الدخول';
+        authTitle.textContent = 'إنشاء حساب';
+      } else {
+        registerForm.classList.remove('active');
+        loginForm.classList.add('active');
+        toggleText.textContent = 'إنشاء حساب';
+        authTitle.textContent = 'تسجيل الدخول';
+      }
+    }
+    
+    function saveUsers() {
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+    
+    function saveChatHistories() {
+      localStorage.setItem('chatHistories', JSON.stringify(chatHistories));
+    }
+    
+    /***** وظائف تسجيل الدخول وإنشاء الحساب *****/
+    function registerUser() {
+      const username = document.getElementById('registerUsername').value.trim();
+      const password = document.getElementById('registerPassword').value.trim();
+      const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
+      
+      if(username === '' || password === '' || confirmPassword === '') {
+        alert('يرجى ملء جميع الحقول.');
+        return;
+      }
+      if(password !== confirmPassword) {
+        alert('كلمة المرور وتأكيدها غير متطابقين.');
+        return;
+      }
+      if(users.find(user => user.username === username)) {
+        alert('اسم المستخدم موجود مسبقاً. يرجى اختيار اسم آخر.');
+        return;
+      }
+      const newUser = { username, password, status: '' };
+      users.push(newUser);
+      saveUsers();
+      alert('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
+      toggleAuth();
+    }
+    
+    function loginUser() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      
+      if(username === '' || password === '') {
+        alert('يرجى ملء جميع الحقول.');
+        return;
+      }
+      
+      const user = users.find(user => user.username === username && user.password === password);
+      if(user) {
+        currentUser = user;
+        document.getElementById('userInfo').textContent = 'مرحباً، ' + currentUser.username;
+        document.getElementById('auth').style.display = 'none';
+        document.getElementById('main').style.display = 'block';
+        // تعبئة الملف الشخصي ببيانات المستخدم
+        document.getElementById('profileUsername').textContent = currentUser.username;
+        document.getElementById('profileStatus').textContent = currentUser.status;
+        // تحديث قوائم جهات الاتصال وقائمة المستخدمين
+        updateContactsList();
+        updateUsersList();
+      } else {
+        alert('بيانات الدخول غير صحيحة.');
+      }
+    }
+    
+    function logout() {
+      currentUser = null;
+      document.getElementById('auth').style.display = 'block';
+      document.getElementById('main').style.display = 'none';
+    }
+    
+    /***** التنقل بين صفحات الموقع *****/
+    function showPage(pageId) {
+      const pages = document.querySelectorAll('.page');
+      pages.forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+    }
+    
+    /***** إدارة المنشورات ******/
+    function createPost() {
+      const textarea = document.getElementById('postContent');
+      const content = textarea.value.trim();
+      if(content === '') {
+        alert('الرجاء إدخال محتوى المنشور.');
+        return;
+      }
+      const postsContainer = document.getElementById('posts');
+      const postDiv = document.createElement('div');
+      postDiv.className = 'post';
+      const timestamp = new Date().toLocaleString();
+      postDiv.innerHTML = `
+        <span class="delete" onclick="deletePost(this)">X</span>
+        <h3>${currentUser ? currentUser.username : 'اسم المستخدم'}</h3>
+        <small>${timestamp}</small>
+        <p>${content}</p>
+        <div class="actions">
+          <span onclick="likePost(this)">إعجاب</span>
+          <span onclick="commentPost(this)">تعليق</span>
+          <span onclick="sharePost(this)">مشاركة</span>
+        </div>
+      `;
+      postsContainer.insertBefore(postDiv, postsContainer.firstChild);
+      textarea.value = '';
+    }
+    
+    function deletePost(el) {
+      if(confirm('هل أنت متأكد من حذف المنشور؟')) {
+        const postDiv = el.parentElement;
+        postDiv.parentElement.removeChild(postDiv);
+      }
+    }
+    
+    function likePost(element) { alert('تم الإعجاب بالمنشور.'); }
+    function commentPost(element) { alert('فتح نافذة التعليق.'); }
+    function sharePost(element) { alert('تمت مشاركة المنشور.'); }
+    
+    /***** إدارة الملف الشخصي *****/
+    function updateProfile() {
+      const status = document.getElementById('statusInput').value.trim();
+      if(status === '') return;
+      currentUser.status = status;
+      document.getElementById('profileStatus').textContent = status;
+      saveUsers();
+      alert('تم تحديث الوضعية بنجاح.');
+      updateUsersList();  // تحديث القائمة إذا تغيرت الحالة
+    }
+    
+    /***** إدارة قائمة جهات الاتصال والدردشة *****/
+    // تحديث قائمة جهات الاتصال: نعرض فقط المستخدمين الآخرين (من users)
+    function updateContactsList() {
+      const contactsList = document.getElementById('contactsList');
+      contactsList.innerHTML = '';
+      users.forEach(user => {
+        if(user.username !== currentUser.username) {
+          const div = document.createElement('div');
+          div.className = 'contact';
+          div.innerHTML = `
+            <img src="https://via.placeholder.com/40" alt="${user.username}">
+            <span>${user.username}</span>
+          `;
+          // عند النقر على جهة اتصال: يفتح نافذة الدردشة مع هذا المستخدم
+          div.onclick = () => openChat(user.username);
+          contactsList.appendChild(div);
         }
-
-        const app = new SocialNetwork();
-
-        // عناصر DOM
-        const elements = {
-            authSection: document.getElementById('authSection'),
-            mainApp: document.getElementById('mainApp'),
-            userProfile: document.getElementById('userProfile'),
-            postsContainer: document.getElementById('postsContainer'),
-            friendsList: document.getElementById('friendsList'),
-            chatMessages: document.getElementById('chatMessages'),
-            messageInput: document.getElementById('messageInput')
-        };
-
-        // أحداث التسجيل
-        function register() {
-            const username = document.getElementById('regUsername').value;
-            const password = document.getElementById('regPassword').value;
-            
-            if (app.register(username, password)) {
-                app.showNotification('تم إنشاء الحساب بنجاح!');
-                document.getElementById('regUsername').value = '';
-                document.getElementById('regPassword').value = '';
-            }
+      });
+    }
+    
+    // تحديث قائمة المستخدمين في صفحة "المستخدمين"
+    function updateUsersList() {
+      const usersContainer = document.getElementById('usersListContainer');
+      usersContainer.innerHTML = '';
+      users.forEach(user => {
+        if(user.username !== currentUser.username) {
+          const div = document.createElement('div');
+          div.style.border = "1px solid #ddd";
+          div.style.padding = "10px";
+          div.style.marginBottom = "5px";
+          div.innerHTML = `
+            <strong>${user.username}</strong><br>
+            ${user.status || 'لا توجد حالة'}<br>
+            <button onclick="viewOtherProfile('${user.username}')">عرض الملف الشخصي</button>
+          `;
+          usersContainer.appendChild(div);
         }
-
-        // أحداث تسجيل الدخول
-        function login() {
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (app.login(username, password)) {
-                elements.authSection.style.display = 'none';
-                elements.mainApp.style.display = 'block';
-                loadUI();
-            } else {
-                app.showNotification('بيانات الدخول غير صحيحة!');
-            }
-        }
-
-        // تحميل الواجهة
-        function loadUI() {
-            // تحديث الملف الشخصي
-            elements.userProfile.innerHTML = `
-                <div style="background: #f0f2f5; padding: 1rem; border-radius: 8px">
-                    <h4>${app.currentUser}</h4>
-                    <p>عضو منذ: ${new Date().toLocaleDateString()}</p>
-                </div>
-            `;
-
-            // تحميل المنشورات
-            loadPosts();
-            
-            // تحميل قائمة الأصدقاء
-            elements.friendsList.innerHTML = app.users
-                .filter(u => u.username !== app.currentUser)
-                .map(u => `
-                    <div class="post" onclick="selectUser('${u.username}')" 
-                         style="cursor: pointer; padding: 0.8rem; margin-bottom: 0.5rem;">
-                        ${u.username}
-                    </div>
-                `).join('');
-
-            // تحديث الإشعارات
-            app.updateUnreadCount();
-        }
-
-        // تحميل المنشورات
-        function loadPosts() {
-            elements.postsContainer.innerHTML = app.posts.map(post => `
-                <div class="post">
-                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="width: 40px; height: 40px; background: #ddd; border-radius: 50%;"></div>
-                        <div>
-                            <h4>${post.author}</h4>
-                            <small>${post.date}</small>
-                        </div>
-                    </div>
-                    <p>${post.content}</p>
-                </div>
-            `).join('');
-        }
-
-        // إرسال رسالة
-        function sendMessage() {
-            const message = elements.messageInput.value;
-            if (message && app.selectedUser) {
-                app.sendMessage(message, app.selectedUser);
-                elements.messageInput.value = '';
-                loadChat();
-            }
-        }
-
-        // اختيار مستخدم للدردشة
-        function selectUser(username) {
-            app.selectedUser = username;
-            loadChat();
-        }
-
-        // تحميل الدردشة
-        function loadChat() {
-            elements.chatMessages.innerHTML = app.getConversation(app.selectedUser)
-                .map(msg => `
-                    <div class="message ${msg.from === app.currentUser ? 'sent' : 'received'}">
-                        <div style="font-size: 0.9rem; margin-bottom: 0.3rem;">${msg.from}</div>
-                        <div>${msg.message}</div>
-                        <div style="font-size: 0.8rem; margin-top: 0.3rem; opacity: 0.8;">
-                            ${new Date(msg.timestamp).toLocaleTimeString()}
-                        </div>
-                    </div>
-                `).join('');
-            
-            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-        }
-
-        // تسجيل الخروج
-        function logout() {
-            app.currentUser = null;
-            elements.mainApp.style.display = 'none';
-            elements.authSection.style.display = 'block';
-        }
-
-        // محاكاة تحميل البيانات
-        function simulateLoading() {
-            document.querySelector('.loading').style.display = 'block';
-            setTimeout(() => {
-                document.querySelector('.loading').style.display = 'none';
-            }, 500);
-        }
-
-        // تهيئة أولية
-        window.onload = () => {
-            if (app.currentUser) {
-                elements.authSection.style.display = 'none';
-                elements.mainApp.style.display = 'block';
-                loadUI();
-            }
-        };
-    </script>
+      });
+    }
+    
+    /***** إدارة صفحات الملف الشخصي للمستخدمين الآخرين *****/
+    function viewOtherProfile(username) {
+      // البحث عن بيانات المستخدم المستهدف
+      const target = users.find(user => user.username === username);
+      if(target) {
+        document.getElementById('otherUsername').textContent = target.username;
+        document.getElementById('otherStatus').textContent = target.status || 'لا توجد حالة';
+        // الانتقال لصفحة الملف الشخصي للمستخدم الآخر
+        showPage('otherProfile');
+        // حفظ اسم المستخدم الهدف في متغير مؤقت لاستعماله لاحقاً في بدء دردشة
+        tempTargetProfile = target.username;
+      }
+    }
+    
+    function backToUsers() {
+      showPage('users');
+    }
+    
+    // متغير لتخزين اسم المستخدم المستهدف عند زيارة الملف الشخصي الآخر
+    let tempTargetProfile = '';
+    
+    /***** إدارة الدردشة الخاصة *****/
+    let currentChatUser = '';
+    function openChat(friendName) {
+      currentChatUser = friendName;
+      document.getElementById('chatWith').textContent = 'المحادثة مع: ' + friendName;
+      document.getElementById('chatWindow').style.display = 'flex';
+      loadChatHistory();
+    }
+    
+    function closeChat() {
+      document.getElementById('chatWindow').style.display = 'none';
+    }
+    
+    function loadChatHistory() {
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.innerHTML = '';
+      const chatKey = getChatKey(currentUser.username, currentChatUser);
+      let history = chatHistories[chatKey] || [];
+      history.forEach(msg => {
+        const p = document.createElement('p');
+        p.textContent = msg;
+        chatMessages.appendChild(p);
+      });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if(message === '') return;
+      const chatMessages = document.getElementById('chatMessages');
+      const chatKey = getChatKey(currentUser.username, currentChatUser);
+      const userMsg = currentUser.username + ': ' + message;
+      if(!chatHistories[chatKey]) {
+        chatHistories[chatKey] = [];
+      }
+      chatHistories[chatKey].push(userMsg);
+      saveChatHistories();
+      
+      const msgP = document.createElement('p');
+      msgP.textContent = userMsg;
+      chatMessages.appendChild(msgP);
+      input.value = '';
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      // محاكاة رد تلقائي بعد ثانية
+      setTimeout(() => {
+        const reply = currentChatUser + ': ' + 'تم استلام رسالتك!';
+        chatHistories[chatKey].push(reply);
+        saveChatHistories();
+        const replyP = document.createElement('p');
+        replyP.textContent = reply;
+        chatMessages.appendChild(replyP);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 1000);
+    }
+    
+    // بدء الدردشة من صفحة الملف الشخصي للمستخدم الآخر
+    function startChatFromOtherProfile() {
+      if(tempTargetProfile) {
+        openChat(tempTargetProfile);
+        showPage('chatSection');
+      }
+    }
+  </script>
 </body>
 </html>
